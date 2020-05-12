@@ -11,6 +11,7 @@ LABEL maintainer="aptalca"
 ENV NEXTCLOUD_PATH="/config/www/nextcloud"
 
 RUN \
+ set -ex && \
  echo "**** install build packages ****" && \
  apk add --no-cache --virtual=build-dependencies --upgrade \
 	autoconf \
@@ -25,9 +26,23 @@ RUN \
 	zlib-dev && \
  echo "**** install runtime packages ****" && \
  # dlib for Machine learning from alpine:testing
- apk add -X http://dl-cdn.alpinelinux.org/alpine/edge/testing dlib && \
- 
- apk add --no-cache --upgrade \
+ apk add -X http://dl-cdn.alpinelinux.org/alpine/edge/testing dlib && \ 
+ apk add --no-cache --upgrade \ 
+        $PHPIZE_DEPS \
+        freetype-dev \
+        icu-dev \
+        libevent-dev \
+        libjpeg-turbo-dev \
+        libmcrypt-dev \
+        libpng-dev \
+        libmemcached-dev \
+        libzip-dev \
+        openldap-dev \
+        pcre-dev \
+        postgresql-dev \
+        imagemagick-dev \
+        libwebp-dev \
+        gmp-dev \
         bzip2-dev \
 	curl \
 	ffmpeg \
@@ -72,9 +87,22 @@ RUN \
  && mkdir -p /usr/src/php/ext/ \
  && unzip -d /usr/src/php/ext/ master.zip \
  && rm master.zip && \
- docker-php-ext-install pdlib-master && \
- docker-php-ext-install bz2 && \
  
+    docker-php-ext-configure gd --with-freetype-dir=/usr --with-png-dir=/usr --with-jpeg-dir=/usr --with-webp-dir=/usr && \
+    docker-php-ext-configure ldap && \
+    docker-php-ext-install -j "$(nproc)" \
+        exif \
+        gd \
+        intl \
+        ldap \
+        opcache \
+        pcntl \
+        pdo_mysql \
+        pdo_pgsql \
+        zip \
+        gmp \
+        pdlib-master \
+        bz2 && \
  echo "**** compile smbclient ****" && \
  git clone git://github.com/eduardok/libsmbclient-php.git /tmp/smbclient && \
  cd /tmp/smbclient && \
