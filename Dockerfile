@@ -24,7 +24,11 @@ RUN \
 	samba-dev \
 	zlib-dev && \
  echo "**** install runtime packages ****" && \
+ # dlib for Machine learning from alpine:testing
+ apk add -X http://dl-cdn.alpinelinux.org/alpine/edge/testing dlib && \
+ 
  apk add --no-cache --upgrade \
+        bzip2-dev \
 	curl \
 	ffmpeg \
 	imagemagick \
@@ -62,6 +66,15 @@ RUN \
 	sudo \
 	tar \
 	unzip && \
+	
+ #facial recognition from https://github.com/matiasdelellis/pdlib fork
+ wget https://github.com/matiasdelellis/pdlib/archive/master.zip \
+ && mkdir -p /usr/src/php/ext/ \
+ && unzip -d /usr/src/php/ext/ master.zip \
+ && rm master.zip && \
+ docker-php-ext-install pdlib-master && \
+ docker-php-ext-install bz2 && \
+ 
  echo "**** compile smbclient ****" && \
  git clone git://github.com/eduardok/libsmbclient-php.git /tmp/smbclient && \
  cd /tmp/smbclient && \
